@@ -1,10 +1,10 @@
 #!/usr/bin/env kotlin
 
 
-const val MAX_ATTEMPTS = 6
-const val WRONG = '_'
-const val CORRECT = '+'
-const val SWAPPED = '#'
+val MAX_ATTEMPTS = 6
+val WRONG = '_'
+val CORRECT = '+'
+val SWAPPED = '#'
 
 fun main() {
     val secret = words.random() // words.filter{ noRepeats(it) }.random()
@@ -39,10 +39,9 @@ val words = listOf(
  */
 fun noRepeats(s: String): Boolean {
     for (i in s.indices) {
-        for (j in i + 1 until s.length) {
-            if (s[i] == s[j]) {
+        for (j in i + 1 ..< s.length) {
+            if (s[i] == s[j])
                 return false
-            }
         }
     }
 
@@ -120,3 +119,5 @@ fun getResult(secret: String, guess: String): String {
 
     return String(result)
 }
+
+main()
