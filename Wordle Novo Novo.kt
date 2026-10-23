@@ -40,19 +40,29 @@ val words = listOf(
 )
 
 /**
- * Verifica se a string indicada não contém caracteres repetidos.
+ * Verifica se a string indicada não contém caracteres repetidos
+ * @param s A string a verificar
+ * @return true se não houver caracteres repetidos, false caso contrário
  */
 fun noRepeats(s: String): Boolean =
     s.toSet().size == s.length
 
 /**
- * Verifica se todos os caracteres do resultado são CORRECT.
+ * Verifica se todos os caracteres da string result são iguais a CORRECT
+ * @param result A string a verificar
+ * @return true se todos os caracteres forem iguais a CORRECT, false caso contrário
  */
 fun allCorrect(result: String): Boolean =
     result.all { it == CORRECT }
 
 /**
- * Lê uma palavra válida, convertida para maiúsculas, sem usar 'var'.
+ * Lê uma palavra introduzida pelo utilizador convertida para maiúsculas.
+ * Só retorna quando a palavra lida tem o comprimento correto
+ * e só contém letras maiúsculas.
+ * Sugere a introdução da palavra com a mensagem "Palavra: ".
+ * Cada palavra não aceite provoca a mensagem "Palavra inválida."
+ * @param length O comprimento da palavra a ler
+ * @return A palavra lida em maiúsculas
  */
 fun readGuess(length: Int): String {
     print("Palavra: ")
@@ -67,25 +77,37 @@ fun readGuess(length: Int): String {
 }
 
 /**
- * Obtém o resultado usando apenas valores imutáveis.
+ * Obtém o resultado da tentativa com base na palavra secreta e na tentativa do utilizador
+ * @param secret A palavra secreta
+ * @param guess A tentativa do utilizador
+ * @return A string do resultado com os caracteres CORRECT, WRONG e SWAPPED
+ * Exemplo: getResult("CARRO", "CRAVO") == "+##_+"
  */
 fun getResult(secret: String, guess: String): String {
-    val exactMatches = guess.indices
-        .filter { i -> guess[i] == secret[i] }
-        .toSet()
-
-    val remainingSecret = guess.indices
-        .filter { i -> i !in exactMatches }
-        .map { i -> secret[i] }
-
-    return guess.indices.map { i ->
-        when {
-            i in exactMatches -> CORRECT
-            remainingSecret
-                .take(i - exactMatches.count { it < i })
-                .count { it == guess[i] } <
-                remainingSecret.count { it == guess[i] } -> SWAPPED
-            else -> WRONG
+    var result = ""
+    for (i in 0..<guess.length) {
+        if (guess[i] == secret[i]) {
+            result += CORRECT
+        } else {
+            var available = 0
+            for (k in 0..<secret.length) {
+                if (secret[k] == guess[i] && guess[k] != secret[k]) {
+                    available++
+                }
+            }
+            var usedBefore = 0
+            for (j in 0..<i) {
+                if (guess[j] == guess[i] && guess[j] != secret[j]) {
+                    usedBefore++
+                }
+            }
+            if (usedBefore < available) {
+                result += SWAPPED
+            } else {
+                result += WRONG
+            }
         }
-    }.joinToString("")
+    }
+    return result
 }
+

@@ -1,35 +1,27 @@
 #!/usr/bin/env kotlin
 
-val MAX_ATTEMPTS = 6
-val WRONG = '_'
-val CORRECT = '+'
-val SWAPPED = '#'
+const val MAX_ATTEMPTS = 6
+const val WRONG = '_'
+const val CORRECT = '+'
+const val SWAPPED = '#'
 
 
 fun main() {
-    val secret = words.random()
-
-    println(
-        "Adivinhar uma palavra com ${secret.length} letras " +
-            "em $MAX_ATTEMPTS tentativas."
-    )
-
-    for (attempts in 1..MAX_ATTEMPTS) {
+    val secret = words.random() // words.filter{ noRepeats(it) }.random()
+    println("Adivinhar uma palavra com ${secret.length} letras em $MAX_ATTEMPTS tentativas.")
+    var attempts = 1
+    do {
         println("${attempts}ª tentativa")
-
-        val guess = readGuess(secret.length)
-        val result = getResult(secret, guess)
-
+        val guess: String = readGuess(secret.length)
+        val result: String = getResult(secret, guess)
         println(guess)
         println(result)
+        if (allCorrect(result)) break
+        attempts++
+    } while (attempts <= MAX_ATTEMPTS)
 
-        if (allCorrect(result)) {
-            println("YOU WIN -> Word=$secret")
-            return
-        }
-    }
-
-    println("YOU LOSE -> Word=$secret")
+    val status = if (attempts > MAX_ATTEMPTS) "LOSE" else "WIN"
+    println("YOU $status -> Word=$secret")
 }
 
 val words = listOf(
@@ -41,23 +33,34 @@ val words = listOf(
 )
 
 /**
- * Verifica se a string indicada não contém caracteres repetidos.
+ * Verifica se a string indicada não contém caracteres repetidos
+ * @param s A string a verificar
+ * @return true se não houver caracteres repetidos, false caso contrário
  */
-fun noRepeats(s: String): Boolean =
+fun noRepeats(s: String): Boolean = 
     s.toSet().size == s.length
 
 /**
- * Verifica se todos os caracteres do resultado são CORRECT.
+ * Verifica se todos os caracteres da string result são iguais a CORRECT
+ * @param result A string a verificar
+ * @return true se todos os caracteres forem iguais a CORRECT, false caso contrário
  */
 fun allCorrect(result: String): Boolean =
     result.all { it == CORRECT }
 
 /**
- * Lê uma palavra válida, convertida para maiúsculas, sem usar 'var'.
+ * Lê uma palavra introduzida pelo utilizador convertida para maiúsculas.
+ * Só retorna quando a palavra lida tem o comprimento correto
+ * e só contém letras maiúsculas.
+ * Sugere a introdução da palavra com a mensagem "Palavra: ".
+ * Cada palavra não aceite provoca a mensagem "Palavra inválida."
+ * @param length O comprimento da palavra a ler
+ * @return A palavra lida em maiúsculas
  */
 fun readGuess(length: Int): String {
     print("Palavra: ")
     val guess = readln().uppercase()
+    
 
     if (guess.length == length && guess.all { it in 'A'..'Z' }) {
         return guess
@@ -68,27 +71,12 @@ fun readGuess(length: Int): String {
 }
 
 /**
- * Obtém o resultado usando apenas valores imutáveis.
+ * Obtém o resultado da tentativa com base na palavra secreta e na tentativa do utilizador
+ * @param secret A palavra secreta
+ * @param guess A tentativa do utilizador
+ * @return A string do resultado com os caracteres CORRECT, WRONG e SWAPPED
+ * Exemplo: getResult("CARRO", "CRAVO") == "+##_+"
  */
 fun getResult(secret: String, guess: String): String {
-    val exactMatches = guess.indices
-        .filter { i -> guess[i] == secret[i] }
-        .toSet()
-
-    val remainingSecret = guess.indices
-        .filter { i -> i !in exactMatches }
-        .map { i -> secret[i] }
-
-    return guess.indices.map { i ->
-        val totalInSecret = remainingSecret.count { it == guess[i] }
-        val usedSoFar = (0 until i).count { j ->
-            j !in exactMatches && guess[j] == guess[i]
-        }
-
-        when {
-            i in exactMatches -> CORRECT
-            usedSoFar < totalInSecret -> SWAPPED
-            else -> WRONG
-        }
-    }.joinToString("")
+    
 }
