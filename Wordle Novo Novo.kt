@@ -54,6 +54,14 @@ fun noRepeats(s: String): Boolean =
  */
 fun allCorrect(result: String): Boolean =
     result.all { it == CORRECT }
+    
+/**for (character in result) {
+    if (character != CORRECT) {
+        return false
+    }
+}
+return true */
+
 
 /**
  * Lê uma palavra introduzida pelo utilizador convertida para maiúsculas.
